@@ -1,4 +1,4 @@
-name: fausto_env
+name: tree_env
 channels:
   - conda-forge
   - defaults
