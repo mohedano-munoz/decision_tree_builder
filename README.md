@@ -3,7 +3,7 @@
 
 ## Description
 
-**decision_tree_builder** is a library designed to facilitate the construction and visualization of decision trees interactively, and following the analyst's criteria.. This tool is useful for data analyst and domain experts who want to better understand how decision tree models work and to improve the knowledge from the data.
+**Guided Decision Tree** is a tool designed to facilitate the construction and visualization of decision trees interactively, and following the analyst's criteria.. This tool is useful for data analyst and domain experts who want to better understand how decision tree models work and to improve the knowledge from the data.
 
 ## Requirements
 
