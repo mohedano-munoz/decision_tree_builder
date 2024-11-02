@@ -21,6 +21,12 @@ from c45_tree import rgba_to_rgb
 
 
 def make_axis(axis, columns):
+    '''
+    Create the axes of the visualization.
+    :param axis: list with axis values
+    :param columns: list with column names
+    :return:
+    '''
     columns.remove('index')
     axis_lines = []
     axis_labels = []
@@ -58,6 +64,24 @@ def make_axis(axis, columns):
 
 
 def parse_file(contents, filename, separator):
+    """
+    Parses a file's contents and converts it into a Pandas DataFrame.
+
+    This function takes the base64 encoded content of a file and decodes it.
+    If the file is in CSV format, it reads the content into a Pandas DataFrame
+    using the specified separator.
+
+    Args:
+        contents (str): The base64 encoded contents of the file in the format
+                        "data:<content_type>;base64,<content_string>".
+        filename (str): The name of the file, used to determine if it is a CSV.
+        separator (str): The character used to separate values in the CSV file.
+
+    Returns:
+        pd.DataFrame or None: Returns a Pandas DataFrame containing the parsed
+                              data if successful; otherwise, returns None.
+    """
+
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     try:
@@ -70,6 +94,27 @@ def parse_file(contents, filename, separator):
 
 
 def split_train_test(df_full, targetFeature, trainValue, seed, full_train=False):
+
+    """
+    Splits a DataFrame into training and testing sets while scaling the features.
+
+    This function takes a full DataFrame and splits it into training and testing sets based on the specified target feature. It applies standard scaling to the feature columns and can handle full training or partial training based on the input parameters.
+
+    Args:
+        df_full (pd.DataFrame): The full DataFrame containing all features and the target variable.
+        targetFeature (str): The name of the target feature column in the DataFrame.
+        trainValue (float): The percentage of the data to be used for training (0-100).
+        seed (int): The random seed for reproducibility of the train-test split.
+        full_train (bool, optional): If True, uses a fixed test size of 2; otherwise, it uses the specified trainValue. Default is False.
+
+    Returns:
+        tuple: A tuple containing four elements:
+            - X_train (pd.DataFrame): The training feature set.
+            - X_test (pd.DataFrame): The testing feature set.
+            - y_train (pd.Series): The training target variable.
+            - y_test (pd.Series): The testing target variable.
+    """
+
     y = df_full[targetFeature]
     X = df_full.drop(targetFeature, axis=1)
     X = X.apply(pd.to_numeric, errors='coerce')
@@ -97,6 +142,19 @@ def split_train_test(df_full, targetFeature, trainValue, seed, full_train=False)
 
 
 def get_color_scale(lenght):
+
+    """
+    Generates a list of RGB color strings based on a specified length.
+
+    This function retrieves a color scale from the Plotly qualitative color palette and converts the selected colors into RGB format. It is designed to accommodate a specified number of colors for use in visualizations.
+
+    Args:
+        lenght (int): The number of colors to retrieve from the color scale.
+
+    Returns:
+        list: A list of RGB color strings corresponding to the specified length.
+    """
+
     # colors = px.colors.qualitative.Plotly
     colors = px.colors.qualitative.Dark24
     myColors = colors[:lenght]
@@ -110,6 +168,19 @@ def get_color_scale(lenght):
 
 
 def lda_2_classes_jittering(X_train, y_train):
+    """
+    Performs Linear Discriminant Analysis (LDA) with jittering for two classes.
+
+    This function fits an LDA model to the training data and computes a transformation matrix that can be used to project the data into a lower-dimensional space. The jittering process helps in enhancing the separation between the two classes.
+
+    Args:
+        X_train (pd.DataFrame): The training feature set.
+        y_train (pd.Series): The training target variable, which contains class labels.
+
+    Returns:
+        np.ndarray: A 2xN transformation matrix where N is the number of features in the input data.
+    """
+
     lda = LDA(n_components=2)
     X_train.apply(pd.to_numeric, errors='coerce')
     lda.fit(X_train, y_train)
@@ -138,6 +209,28 @@ def lda_2_classes_jittering(X_train, y_train):
 
 
 def lda(X_train, X_test, y_train, y_test, features, seed, num_classes, jittering=True):
+    """
+    Performs Linear Discriminant Analysis (LDA) on training and testing datasets.
+
+    This function applies LDA to reduce the dimensionality of the feature space based on the class labels provided. It supports jittering for datasets with two classes to enhance separation. The resulting transformed data can be used for further analysis or visualization.
+
+    Args:
+        X_train (pd.DataFrame): The training feature set, including an 'index' column.
+        X_test (pd.DataFrame): The testing feature set, including an 'index' column.
+        y_train (pd.Series): The training target variable, containing class labels.
+        y_test (pd.Series): The testing target variable (not used in the function).
+        features (list): A list of feature names (not used in the function).
+        seed (int): The random seed for reproducibility (not used in the function).
+        num_classes (int or None): The number of unique classes in the target variable; if None, it's inferred from y_train.
+        jittering (bool): Whether to apply jittering for two-class LDA. Default is True.
+
+    Returns:
+        tuple: A tuple containing:
+            - Xr_train_df (np.ndarray): The transformed training dataset as a NumPy array.
+            - Xr_test_df (np.ndarray): The transformed testing dataset as a NumPy array.
+            - axis (np.ndarray): The transformation axis used in the LDA.
+            - num_classes (int): The number of unique classes found in the target variable.
+    """
     id_train = X_train['index']
     id_test = X_test['index']
     X_train = X_train.drop('index', axis=1)
@@ -183,6 +276,19 @@ def lda(X_train, X_test, y_train, y_test, features, seed, num_classes, jittering
 
 
 def lda_2_classes_jittering(X_train, y_train):
+    """
+    Computes a transformation matrix for dimensionality reduction using LDA and PCA.
+
+    This function performs Linear Discriminant Analysis (LDA) to find the discriminative axes for two classes, and then it applies Principal Component Analysis (PCA) to aid in constructing a transformation matrix that can be used for projecting data into a lower-dimensional space.
+
+    Args:
+        X_train (pd.DataFrame): The training feature set used for fitting the LDA and PCA models.
+        y_train (pd.Series): The training target variable containing class labels.
+
+    Returns:
+        np.ndarray: A 2xN transformation matrix where N is the number of features in the input data.
+    """
+
     lda = LDA(n_components=2)
     X_train.apply(pd.to_numeric, errors='coerce')
     lda.fit(X_train, y_train)
@@ -211,10 +317,23 @@ def lda_2_classes_jittering(X_train, y_train):
 
 
 def make_figure(lda_json, original_classes, jittering=True):
+    """
+    Creates a visualization figure for LDA projections, supporting both multi-class and binary classifications.
+
+    This function takes JSON input containing LDA results and produces a Plotly figure. It handles different visualizations based on the number of classes present in the target variable. For multi-class cases, it generates a scatter plot, while for binary classification, it generates a distribution plot.
+
+    Args:
+        lda_json (str): A JSON string containing the LDA data, color scale, and other necessary information.
+        original_classes (list): A list of original class labels for coloring the plot; can be None.
+        jittering (bool): If True, applies jittering for two-class LDA; otherwise, it processes normally. Default is True.
+
+    Returns:
+        go.Figure: A Plotly figure object representing the LDA projection, either as a scatter plot or a distribution plot.
+    """
+
     data_dict = json.loads(lda_json)
     lda_dict = data_dict['lda']
     color_scale = data_dict['color_scale']
-    # TODO: Añadir como caso normal si se muestra con jittering
     # Normal case: more than 2 classes of target feature
     if lda_dict['num_classes'] != 2 or jittering:
 
@@ -516,45 +635,6 @@ def executeClassifictaionSklearn(lda_dict, criterion, max_depth):
     # Predict the response for test dataset
     y_pred = clf.predict(X_test)
 
-    # colormap = ["rgba(99, 110, 250, 1)", "rgba(239, 85, 59, 1)", "rgba(0, 204, 150, 1)"]
-    #
-    # graph = pydotplus.graph_from_dot_data(dot_data)
-    # nodes = graph.get_node_list()
-    #
-    # leafs = {n.get_name(): True for n in graph.get_nodes()}
-    # for e in graph.get_edge_list():
-    #     leafs[e.get_source()] = False
-    # del leafs['node']
-    # del leafs['edge']
-    # leafs = {key: val for key, val in leafs.items() if val is True}
-    #
-    # for node in nodes:
-    #     if node.get_name() not in ('node', 'edge'):
-    #         if node.get_name() in leafs:
-    #             label = node.get('label')
-    #             a = '[' + label.split('[')[1]
-    #             a = a.replace('"', '')
-    #             b = ast.literal_eval(a)
-    #             index = b.index(max(b))
-    #             color = colormap[index]
-    #             color = rgba_to_rgb(color)
-    #             color = wc.rgb_to_hex(color)
-    #             node.set_fillcolor(color)
-    #         else:
-    #             node.set_fillcolor('#FFFFFF')
-    #
-    # # for leaf in leafs:
-    # #     node = nodes[leaf]
-    # #     label = node.get('label')
-    # #     a = '[' + label.split('[')[1]
-    # #     a = a.replace('"', '')
-    # #     b = ast.literal_eval(a)
-    # #     index = b.index(max(b))
-    # #     color = colormap[index]
-    #
-    #
-    # graph.write_png('test_tree.png')
-
     # Get classes and classes labels
     classes = sorted(y_train.unique())
     labels = ['class_{}'.format(item) for item in classes]
@@ -563,8 +643,17 @@ def executeClassifictaionSklearn(lda_dict, criterion, max_depth):
 
 
 def adapt_scikit_learn_colormap(graph):
-    # colormap = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880',
-    #             '#FF97FF', '#FECB52']
+    """
+    Applies a color scheme to the nodes of a graph based on their leaf status.
+
+    This function iterates through the nodes of a graph and assigns fill colors based on whether each node is a leaf node. Leaf nodes are colored using a qualitative colormap, while non-leaf nodes are set to a default white color.
+
+    Args:
+        graph (Graph): The graph object containing nodes and edges to be colored.
+
+    Returns:
+        Graph: The updated graph object with colors applied to the nodes.
+    """
 
     colormap = px.colors.qualitative.Dark24
 
@@ -595,6 +684,19 @@ def adapt_scikit_learn_colormap(graph):
 
 
 def check_elements(tree, elements):
+    """
+    Updates the classes of elements in a tree structure based on their node status.
+
+    This function checks each node in a tree for its leaf status and updates the corresponding elements in a provided list. Nodes that are neither leaf nodes nor have children are classified as 'openNode', while leaf nodes are classified as 'closedNode'. Elements that do not match any node status are assigned an empty class.
+
+    Args:
+        tree (dict): A dictionary representing the tree structure, containing nodes with their properties.
+        elements (list): A list of elements (dictionaries) to be updated based on the node classification.
+
+    Returns:
+        list: The updated list of elements with modified classes based on the node status.
+    """
+
     open_nodes_list = []
     closed_nodes_list = []
     for node in tree['nodes']:

@@ -57,7 +57,21 @@ Functions taken from https://github.com/barisesmer/C4.5/blob/master/c45/c45.py
 """
 
 def splitAttribute(data, chosen_attribute, classes):
-    print('COMIENZA CALCULO DE VALOR')
+    """
+    Splits the dataset based on a chosen attribute and finds the best threshold for continuous attributes.
+
+    This function iterates through all possible thresholds for the given attribute in the dataset to determine how best to split the data into two subsets (less than or equal to the threshold and greater than the threshold). It calculates the information gain for each potential split and selects the threshold that provides the maximum gain.
+
+    Args:
+        data (pandas.DataFrame): The dataset to split, with attributes as columns.
+        chosen_attribute (str): The name of the attribute to split on.
+        classes (list): A list of unique class labels present in the dataset.
+
+    Returns:
+        tuple: A tuple containing:
+            - best_threshold (float): The optimal threshold value for the split.
+            - splitted (list of lists): A list containing two subsets of the data split by the threshold.
+    """
     splitted = []
     maxEnt = -1 * float("inf")
     # None for discrete attributes, threshold value for continuous attributes
@@ -84,11 +98,23 @@ def splitAttribute(data, chosen_attribute, classes):
                 splitted = [less, greater]
                 maxEnt = e
                 best_threshold = threshold
-    print('ACABA CALCULO DE VALOR')
     return (best_threshold, splitted)
 
 
 def gain(dataSet, subsets, classes):
+    """
+    Calculates the information gain from splitting a dataset based on a given attribute.
+
+    This function computes the information gain by first determining the impurity of the dataset before the split and then calculating the weighted impurity after the split using disjoint subsets. The information gain is the difference between the impurity before and after the split.
+
+    Args:
+        dataSet (list of lists): The dataset where each row is a data instance.
+        subsets (list of lists): A list containing disjoint subsets of the dataset created by the split.
+        classes (list): A list of unique class labels present in the dataset.
+
+    Returns:
+        float: The information gain resulting from the split.
+    """
     # input : data, disjoint subsets of it and attribute list
     # output : information gain
     S = len(dataSet)
@@ -105,6 +131,19 @@ def gain(dataSet, subsets, classes):
 
 
 def entropy(dataSet, classes):
+    """
+    Calculates the entropy of a dataset based on the distribution of classes.
+
+    This function computes the entropy, a measure of the uncertainty or impurity in the dataset, given a list of classes. It counts the occurrences of each class in the dataset and calculates the entropy based on their probabilities.
+
+    Args:
+        dataSet (list of lists): The dataset where each row is a data instance, and the last element of each row is the class label.
+        classes (list): A list of unique class labels present in the dataset.
+
+    Returns:
+        float: The calculated entropy of the dataset. Returns 0 if the dataset is empty.
+    """
+
     S = len(dataSet)
     if S == 0:
         return 0

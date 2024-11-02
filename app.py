@@ -24,6 +24,23 @@ app.layout = app_layout
 
 def train_test_dict_common(selectedFeatures, trainValue, jsonified_data, targetFeature, seed,
                            tree_jsonified, selectedNode_value):
+    """
+    Splits the dataset into training and testing sets based on selected features and a target feature.
+
+    This function takes in selected features, a target feature, and optional parameters to work with a specific node in a decision tree. It retrieves the full dataset from a JSON format, potentially narrows it down to the data related to a specific node, and then splits it into training and testing sets. The resulting datasets and a color scale for visualization are returned as a JSON-serialized dictionary.
+
+    Args:
+        selectedFeatures (list): List of features to be used for training.
+        trainValue (float): The proportion of the dataset to include in the train split.
+        jsonified_data (str): JSON string representation of the complete dataset.
+        targetFeature (str): The name of the target feature for classification.
+        seed (int): Random seed for reproducibility.
+        tree_jsonified (str): JSON string representation of the decision tree structure.
+        selectedNode_value (str): Identifier for a specific node in the decision tree.
+
+    Returns:
+        str: A JSON string containing the training and testing sets, along with a color scale.
+    """
 
     if jsonified_data is not None and targetFeature is not None:
         df_full = pd.read_json(jsonified_data, orient='split')
@@ -57,6 +74,23 @@ def train_test_dict_common(selectedFeatures, trainValue, jsonified_data, targetF
 
 
 def execute_lda_common(train_test_json, targetFeature, features, seed, complete_json, num_classes, jittering):
+    """
+    Executes Linear Discriminant Analysis (LDA) on the provided training and testing datasets.
+
+    This function performs LDA on the datasets parsed from the input JSON strings, and prepares the results for visualization or further analysis. It retrieves the training and testing datasets along with the original dataset, processes them for LDA, and returns a JSON-serialized dictionary containing all relevant information.
+
+    Args:
+        train_test_json (str): JSON string representation of the training and testing datasets.
+        targetFeature (str): The name of the target feature for classification.
+        features (list): List of features to be used for LDA.
+        seed (int): Random seed for reproducibility.
+        complete_json (str): JSON string representation of the complete dataset.
+        num_classes (int): Number of unique classes in the target feature.
+        jittering (bool): Indicates whether to apply jittering for visualization.
+
+    Returns:
+        str: A JSON string containing the results of the LDA, including transformed datasets and other related data.
+    """
 
     if train_test_json is not None:
         train_test = json.loads(train_test_json)
