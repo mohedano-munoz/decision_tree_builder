@@ -1,5 +1,5 @@
 
-# Guided Decision Tree
+# Guided Decision Tree Builder
 
 ## Description
 
